@@ -129,6 +129,7 @@ void DateFormatTest::runIndexedTest( int32_t index, UBool exec, const char* &nam
     TESTCASE_AUTO(TestParseRegression13744);
     TESTCASE_AUTO(TestAdoptCalendarLeak);
     TESTCASE_AUTO(Test20741_ABFields);
+    TESTCASE_AUTO(TestHourCycleLocale);
 
     TESTCASE_AUTO_END;
 }
@@ -5628,6 +5629,25 @@ void DateFormatTest::Test20741_ABFields() {
                 lastFieldPosition = curFieldPosition;
             }
         }
+    }
+}
+
+void DateFormatTest::TestHourCycleLocale() {
+    LocalPointer<DateFormat> dfmt1(DateFormat::createDateTimeInstance(
+            DateFormat::SHORT, DateFormat::SHORT, Locale("fr-u-hc-h11")));
+    SimpleDateFormat* sdtfmt1 = dynamic_cast<SimpleDateFormat*>(dfmt1.getAlias());
+    UnicodeString pattern1;
+    sdtfmt1->toPattern(pattern1);
+
+    LocalPointer<DateFormat> dfmt2(DateFormat::createDateTimeInstance(
+            DateFormat::SHORT, DateFormat::SHORT, Locale("fr-u-hc-h23")));
+    SimpleDateFormat* sdtfmt2 = dynamic_cast<SimpleDateFormat*>(dfmt2.getAlias());
+    UnicodeString pattern2;
+    sdtfmt2->toPattern(pattern2);
+    if (pattern1 == pattern2) {
+      std::string p1;
+      pattern1.toUTF8String(p1);
+      errln("FAILURE! fr-u-hc-h11 and fr-u-hc-h23 should get different pattern but both got %s", p1.c_str());
     }
 }
 
